@@ -100,13 +100,13 @@ class CacheMongoStoreTest extends PHPUnit_Framework_TestCase {
 
 	protected function getStore()
 	{
-		return new MongoStore(m::mock('LMongo\DatabaseManager'), m::mock('Illuminate\Encryption\Encrypter'), 'collection', 'prefix');
+		return new MongoStore(m::mock('LMongo\Connection'), m::mock('Illuminate\Encryption\Encrypter'), 'collection', 'prefix');
 	}
 
 
 	protected function getMocks()
 	{
-		return array(m::mock('LMongo\DatabaseManager'), m::mock('Illuminate\Encryption\Encrypter'), 'collection', 'prefix');
+		return array(m::mock('LMongo\Connection'), m::mock('Illuminate\Encryption\Encrypter'), 'collection', 'prefix');
 	}
 
 }

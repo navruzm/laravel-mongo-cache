@@ -7,7 +7,7 @@ class MongoCacheManager extends CacheManager {
 	/**
 	 * Create an instance of the database cache driver.
 	 *
-	 * @return Illuminate\Cache\DatabaseStore
+	 * @return MongoCache\MongoStore
 	 */
 	protected function createMongoDriver()
 	{
@@ -28,13 +28,13 @@ class MongoCacheManager extends CacheManager {
 	/**
 	 * Get the database connection for the mongo driver.
 	 *
-	 * @return LMongo\Database
+	 * @return LMongo\Connection
 	 */
 	protected function getMongoConnection()
 	{
 		$connection = $this->app['config']['cache.connection'];
 
-		return $this->app['mongo']->connection($connection);
+		return $this->app['lmongo']->connection($connection);
 	}
 
 }

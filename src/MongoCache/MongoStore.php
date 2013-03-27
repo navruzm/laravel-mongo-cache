@@ -1,6 +1,6 @@
 <?php namespace MongoCache;
 
-use LMongo\DatabaseManager;
+use LMongo\Connection;
 use Illuminate\Cache\StoreInterface;
 use Illuminate\Encryption\Encrypter;
 
@@ -9,7 +9,7 @@ class MongoStore implements StoreInterface {
 	/**
 	 * The database connection instance.
 	 *
-	 * @var LMongo\DatabaseManager
+	 * @var LMongo\Connection
 	 */
 	protected $connection;
 
@@ -37,13 +37,13 @@ class MongoStore implements StoreInterface {
 	/**
 	 * Create a new database store.
 	 *
-	 * @param  LMongo\DatabaseManager  $connection
+	 * @param  LMongo\Connection  $connection
 	 * @param  Illuminate\Encrypter  $encrypter
 	 * @param  string  $collection
 	 * @param  string  $prefix
 	 * @return void
 	 */
-	public function __construct(DatabaseManager $connection, Encrypter $encrypter, $collection, $prefix = '')
+	public function __construct(Connection $connection, Encrypter $encrypter, $collection, $prefix = '')
 	{
 		$this->collection = $collection;
 		$this->prefix = $prefix;
@@ -190,7 +190,7 @@ class MongoStore implements StoreInterface {
 	/**
 	 * Get the underlying database connection.
 	 *
-	 * @return LMongo\DatabaseManager
+	 * @return LMongo\Connection
 	 */
 	public function getConnection()
 	{
