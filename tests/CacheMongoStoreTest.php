@@ -3,7 +3,7 @@
 use Mockery as m;
 use MongoCache\MongoStore;
 
-class CacheMongoCacheTest extends PHPUnit_Framework_TestCase {
+class CacheMongoStoreTest extends PHPUnit_Framework_TestCase {
 
 	public function tearDown()
 	{
@@ -23,10 +23,10 @@ class CacheMongoCacheTest extends PHPUnit_Framework_TestCase {
 
 	public function testNullIsReturnedAndItemDeletedWhenItemIsExpired()
 	{
-		$store = $this->getMock('MongoCache\MongoStore', array('removeItem'), $this->getMocks());
+		$store = $this->getMock('MongoCache\MongoStore', array('forget'), $this->getMocks());
 		$store->getConnection()->collection = m::mock('StdClass');
 		$store->getConnection()->collection->shouldReceive('findOne')->once()->with(array('key' => 'prefixfoo'))->andReturn(array('expiration' => new MongoDate(1)));
-		$store->expects($this->once())->method('removeItem')->with($this->equalTo('foo'))->will($this->returnValue(null));
+		$store->expects($this->once())->method('forget')->with($this->equalTo('foo'))->will($this->returnValue(null));
 
 		$this->assertNull($store->get('foo'));
 	}
@@ -72,8 +72,8 @@ class CacheMongoCacheTest extends PHPUnit_Framework_TestCase {
 
 	public function testForeverCallsStoreItemWithReallyLongTime()
 	{
-		$store = $this->getMock('MongoCache\MongoStore', array('storeItem'), $this->getMocks());
-		$store->expects($this->once())->method('storeItem')->with($this->equalTo('foo'), $this->equalTo('bar'), $this->equalTo(5256000));
+		$store = $this->getMock('MongoCache\MongoStore', array('put'), $this->getMocks());
+		$store->expects($this->once())->method('put')->with($this->equalTo('foo'), $this->equalTo('bar'), $this->equalTo(5256000));
 		$store->forever('foo', 'bar');
 	}
 
@@ -100,13 +100,13 @@ class CacheMongoCacheTest extends PHPUnit_Framework_TestCase {
 
 	protected function getStore()
 	{
-		return new MongoStore(m::mock('LMongo\Database'), m::mock('Illuminate\Encryption\Encrypter'), 'collection', 'prefix');
+		return new MongoStore(m::mock('LMongo\DatabaseManager'), m::mock('Illuminate\Encryption\Encrypter'), 'collection', 'prefix');
 	}
 
 
 	protected function getMocks()
 	{
-		return array(m::mock('LMongo\Database'), m::mock('Illuminate\Encryption\Encrypter'), 'collection', 'prefix');
+		return array(m::mock('LMongo\DatabaseManager'), m::mock('Illuminate\Encryption\Encrypter'), 'collection', 'prefix');
 	}
 
 }

@@ -1,15 +1,15 @@
 <?php namespace MongoCache;
 
-use LMongo\Database;
-use Illuminate\Cache\Store;
+use LMongo\DatabaseManager;
+use Illuminate\Cache\StoreInterface;
 use Illuminate\Encryption\Encrypter;
 
-class MongoStore extends Store {
+class MongoStore implements StoreInterface {
 
 	/**
 	 * The database connection instance.
 	 *
-	 * @var LMongo\Database
+	 * @var LMongo\DatabaseManager
 	 */
 	protected $connection;
 
@@ -37,13 +37,13 @@ class MongoStore extends Store {
 	/**
 	 * Create a new database store.
 	 *
-	 * @param  LMongo\Database  $connection
+	 * @param  LMongo\DatabaseManager  $connection
 	 * @param  Illuminate\Encrypter  $encrypter
 	 * @param  string  $collection
 	 * @param  string  $prefix
 	 * @return void
 	 */
-	public function __construct(Database $connection, Encrypter $encrypter, $collection, $prefix = '')
+	public function __construct(DatabaseManager $connection, Encrypter $encrypter, $collection, $prefix = '')
 	{
 		$this->collection = $collection;
 		$this->prefix = $prefix;
@@ -57,7 +57,7 @@ class MongoStore extends Store {
 	 * @param  string  $key
 	 * @return mixed
 	 */
-	protected function retrieveItem($key)
+	public function get($key)
 	{
 		$prefixed = $this->prefix.$key;
 
@@ -70,7 +70,7 @@ class MongoStore extends Store {
 		{
 			if (time() >= $cache['expiration']->sec)
 			{
-				return $this->removeItem($key);
+				return $this->forget($key);
 			}
 
 			return $this->encrypter->decrypt($cache['value']);
@@ -85,7 +85,7 @@ class MongoStore extends Store {
 	 * @param  int     $minutes
 	 * @return void
 	 */
-	protected function storeItem($key, $value, $minutes)
+	public function put($key, $value, $minutes)
 	{
 		$key = $this->prefix.$key;
 
@@ -97,7 +97,7 @@ class MongoStore extends Store {
 		$expiration = new \MongoDate($this->getTime() + ($minutes * 60));
 
 		$item = $this->collection()->findOne(array('key' => $key));
-		
+
 		if(is_null($item))
 		{
 			$this->collection()->insert(compact('key', 'value', 'expiration'));
@@ -105,9 +105,33 @@ class MongoStore extends Store {
 		else
 		{
 			$update_data = array('value' => $value, 'expiration' => $expiration);
-		
+
 			$this->collection()->update(array('key' => $key), array('$set' => $update_data));
 		}
+	}
+
+	/**
+	 * Increment the value of an item in the cache.
+	 *
+	 * @param  string  $key
+	 * @param  mixed   $value
+	 * @return void
+	 */
+	public function increment($key, $value = 1)
+	{
+		throw new \LogicException("Increment operations not supported by this driver.");
+	}
+
+	/**
+	 * Increment the value of an item in the cache.
+	 *
+	 * @param  string  $key
+	 * @param  mixed   $value
+	 * @return void
+	 */
+	public function decrement($key, $value = 1)
+	{
+		throw new \LogicException("Increment operations not supported by this driver.");
 	}
 
 	/**
@@ -127,9 +151,9 @@ class MongoStore extends Store {
 	 * @param  mixed   $value
 	 * @return void
 	 */
-	protected function storeItemForever($key, $value)
+	public function forever($key, $value)
 	{
-		return $this->storeItem($key, $value, 5256000);
+		return $this->put($key, $value, 5256000);
 	}
 
 	/**
@@ -138,7 +162,7 @@ class MongoStore extends Store {
 	 * @param  string  $key
 	 * @return void
 	 */
-	protected function removeItem($key)
+	public function forget($key)
 	{
 		$this->collection()->remove(array('key' => $this->prefix.$key));
 	}
@@ -148,7 +172,7 @@ class MongoStore extends Store {
 	 *
 	 * @return void
 	 */
-	protected function flushItems()
+	public function flush()
 	{
 		$this->collection()->drop();
 	}
@@ -166,7 +190,7 @@ class MongoStore extends Store {
 	/**
 	 * Get the underlying database connection.
 	 *
-	 * @return LMongo\Database
+	 * @return LMongo\DatabaseManager
 	 */
 	public function getConnection()
 	{
