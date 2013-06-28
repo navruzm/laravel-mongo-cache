@@ -1,5 +1,6 @@
 [MongoDB](http://www.mongodb.org/) Cache driver for [Laravel 4](http://laravel.com/).
 
+[![Build Status](https://travis-ci.org/navruzm/laravel-mongo-cache.png?branch=master)](https://travis-ci.org/navruzm/laravel-mongo-cache)
 Installation
 ============
 
