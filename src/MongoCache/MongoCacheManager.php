@@ -22,7 +22,7 @@ class MongoCacheManager extends CacheManager {
 
 		$prefix = $this->app['config']['cache.prefix'];
 
-		return new MongoStore($connection, $encrypter, $table, $prefix);
+		return $this->repository(new MongoStore($connection, $encrypter, $table, $prefix));
 	}
 
 	/**

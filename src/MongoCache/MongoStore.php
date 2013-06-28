@@ -207,4 +207,14 @@ class MongoStore implements StoreInterface {
 		return $this->encrypter;
 	}
 
+	/**
+	 * Get the cache key prefix.
+	 *
+	 * @return string
+	 */
+	public function getPrefix()
+	{
+		return $this->prefix;
+	}
+
 }
